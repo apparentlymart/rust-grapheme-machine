@@ -1,0 +1,7 @@
+[package]
+edition = "2024"
+name = "grapheme_machine"
+version = "0.1.0"
+
+[dependencies]
+u8char = "0.2.0"
