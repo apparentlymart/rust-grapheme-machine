@@ -84,7 +84,7 @@ impl CharProperties {
     /// represented as a [`u8char`] value.
     ///
     /// This performs a table lookup using a trie embedded in this library.
-    pub const fn for_utf8_char(c: u8char) -> Self {
+    pub const fn for_u8char(c: u8char) -> Self {
         Self {
             raw: table::graphemes_lookup(c),
         }
@@ -130,3 +130,30 @@ impl CharProperties {
         )
     }
 }
+
+#[cfg(test)]
+#[allow(unused, non_upper_case_globals)]
+impl CharProperties {
+    pub(crate) const None: Self = Self::gcb_only(GCBProperty::None);
+    pub(crate) const CR: Self = Self::gcb_only(GCBProperty::CR);
+    pub(crate) const Control: Self = Self::gcb_only(GCBProperty::Control);
+    pub(crate) const Extend: Self = Self::gcb_only(GCBProperty::Extend);
+    pub(crate) const ExtendedPictographic: Self = Self::gcb_only(GCBProperty::ExtendedPictographic);
+    pub(crate) const L: Self = Self::gcb_only(GCBProperty::L);
+    pub(crate) const LF: Self = Self::gcb_only(GCBProperty::LF);
+    pub(crate) const LV: Self = Self::gcb_only(GCBProperty::LV);
+    pub(crate) const LVT: Self = Self::gcb_only(GCBProperty::LVT);
+    pub(crate) const Prepend: Self = Self::gcb_only(GCBProperty::Prepend);
+    pub(crate) const RegionalIndicator: Self = Self::gcb_only(GCBProperty::RegionalIndicator);
+    pub(crate) const SpacingMark: Self = Self::gcb_only(GCBProperty::SpacingMark);
+    pub(crate) const T: Self = Self::gcb_only(GCBProperty::T);
+    pub(crate) const V: Self = Self::gcb_only(GCBProperty::V);
+    pub(crate) const ZWJ: Self = Self::gcb_only(GCBProperty::ZWJ);
+
+    const fn gcb_only(gcb: GCBProperty) -> Self {
+        Self::new(gcb, InCBProperty::None)
+    }
+}
+
+#[cfg(test)]
+pub(crate) mod test_table;

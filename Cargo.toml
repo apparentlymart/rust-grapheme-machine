@@ -5,3 +5,6 @@ version = "0.1.0"
 
 [dependencies]
 u8char = "0.2.0"
+
+[dev-dependencies]
+pretty_assertions = "1.4.1"
