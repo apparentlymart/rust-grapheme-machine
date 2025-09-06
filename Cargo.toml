@@ -1,6 +1,9 @@
 [package]
+description = "Grapheme cluster text segmentation (UAX #29) state machine for streaming input."
 edition = "2024"
+license = "MIT"
 name = "grapheme_machine"
+repository = "https://github.com/apparentlymart/rust-grapheme-machine"
 version = "0.1.0"
 
 [dependencies]
