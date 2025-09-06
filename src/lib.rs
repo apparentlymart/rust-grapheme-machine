@@ -101,6 +101,8 @@
 mod properties;
 mod state;
 
+use core::iter::FusedIterator;
+
 pub use properties::*;
 
 use state::State;
@@ -157,8 +159,6 @@ impl GraphemeMachine {
     /// is always [`ClusterAction::Split`], because there is no current
     /// grapheme cluster to possibly extend.
     pub fn next_char_properties(&mut self, next: CharProperties) -> ClusterAction {
-        extern crate std;
-        std::println!("from {:?} to {:?} in {:?}", self.prev, next, self.state);
         let (boundary, next_state) = self.state.transition(self.prev, next);
         self.state = next_state;
         self.prev = Some(next);
@@ -193,6 +193,62 @@ impl GraphemeMachine {
     pub fn next_char(&mut self, c: char) -> ClusterAction {
         let props = CharProperties::for_char(c);
         self.next_char_properties(props)
+    }
+
+    /// Returns an iterator which, on each call to [`Iterator::next`],
+    /// takes another [`u8char`] from the prefix of `s`, feeds it into
+    /// the state machine using [`Self::next_u8char`], and then returns
+    /// the indicated [`ClusterAction`] along with the character that
+    /// caused it.
+    ///
+    /// If you don't keep reading the iterator until it returns `None`
+    /// then the state machine will only have dealt with the items
+    /// previously returned, and so you'd need to have been counting
+    /// how many UTF-8 bytes' worth of characters you'd consumed so
+    /// far in order to know how much of the string had been processed.
+    /// Always consuming the entire iterator makes things easier to
+    /// keep track of.
+    ///
+    /// There is no automatic call to [`Self::end_of_input`] once the
+    /// end of the string is reached, so it's okay to provide streaming
+    /// input in a series of [`str`] chunks even if there are grapheme
+    /// clusters straddling across the buffer boundaries.
+    pub fn next_u8chars_from_str<'a>(
+        &'a mut self,
+        s: &'a str,
+    ) -> impl Iterator<Item = (ClusterAction, u8char)> + FusedIterator + 'a {
+        struct Iter<'a> {
+            machine: &'a mut GraphemeMachine,
+            remain: &'a str,
+        }
+        impl<'a> Iterator for Iter<'a> {
+            type Item = (ClusterAction, u8char);
+            fn next(&mut self) -> Option<Self::Item> {
+                let (next, rest) = u8char::from_string_prefix(self.remain);
+                let Some(next) = next else {
+                    return None;
+                };
+                let action = self.machine.next_u8char(next);
+                self.remain = rest;
+                Some((action, next))
+            }
+        }
+        impl<'a> FusedIterator for Iter<'a> {}
+        Iter {
+            machine: self,
+            remain: s,
+        }
+    }
+
+    /// Behaves the same as [`Self::next_u8chars_from_str`] except that it
+    /// also converts the characters to [`char`], for more convenient use
+    /// by callers who are interacting with something that only supports
+    /// Rust's standard character representation.
+    pub fn next_chars_from_str<'a>(
+        &'a mut self,
+        s: &'a str,
+    ) -> impl Iterator<Item = (ClusterAction, char)> + FusedIterator + 'a {
+        self.next_u8chars_from_str(s).map(|(a, c)| (a, c.to_char()))
     }
 
     /// Tells the state machine that the input stream has ended.

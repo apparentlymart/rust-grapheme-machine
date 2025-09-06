@@ -4,6 +4,8 @@ use super::*;
 // API. The internal state machine implementation has its own tests under
 // `crate::state::tests`, where most of the interesting testing happens.
 
+use pretty_assertions::assert_eq;
+
 #[test]
 fn basics() {
     use ::u8char::AsU8Chars;
@@ -59,4 +61,33 @@ fn end_of_input() {
             panic!("non-split after end_of_input came before {c:?}");
         }
     }
+}
+
+#[test]
+fn next_chars_from_str() {
+    use ClusterAction::*;
+    let mut machine = GraphemeMachine::new();
+    let input = "Hello!\r\nBeep 🧑‍🌾";
+    let got: Vec<_> = machine.next_chars_from_str(input).collect();
+    assert_eq!(
+        got,
+        &[
+            (Split, 'H'),
+            (Split, 'e'),
+            (Split, 'l'),
+            (Split, 'l'),
+            (Split, 'o'),
+            (Split, '!'),
+            (Split, '\r'),
+            (Continue, '\n'),
+            (Split, 'B'),
+            (Split, 'e'),
+            (Split, 'e'),
+            (Split, 'p'),
+            (Split, ' '),
+            (Split, '🧑'),
+            (Continue, '\u{200D}'), // zero-width joiner
+            (Continue, '🌾'),
+        ]
+    );
 }
