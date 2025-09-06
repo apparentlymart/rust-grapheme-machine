@@ -28,9 +28,9 @@ dependencies = [
 
 [[package]]
 name = "u8char"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e34d37eda751029830008f92897fd1f4c35f9a69c48aafb0990630308c6b4b54"
+checksum = "80c9ab3fbaee4da7257c86c9523d1bb5541bd1e84707e16ed7d713955b25afe5"
 
 [[package]]
 name = "yansi"
