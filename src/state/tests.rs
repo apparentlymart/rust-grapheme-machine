@@ -100,7 +100,7 @@ fn unicode_test_table() {
         let input = str::from_utf8(test.input).expect("invalid UTF-8 in test input");
         let mut remain = input;
         let mut state = State::Base;
-        let mut prev: CharProperties = CharProperties::None;
+        let mut prev: Option<CharProperties> = None;
         let mut got: Vec<Box<[u8]>> = Vec::new();
         let mut current: Vec<u8> = Vec::new();
         loop {
@@ -118,7 +118,7 @@ fn unicode_test_table() {
             }
             current.extend_from_slice(next.as_bytes());
             remain = rest;
-            prev = next_props;
+            prev = Some(next_props);
             state = next_state;
         }
         if !current.is_empty() {
@@ -253,7 +253,7 @@ fn transitions(
     struct Iter<'a> {
         remain: &'a [CharProperties],
         state: State,
-        prev: CharProperties,
+        prev: Option<CharProperties>,
     }
     impl<'a> Iterator for Iter<'a> {
         type Item = (bool, CharProperties, State);
@@ -267,7 +267,7 @@ fn transitions(
             let (split, next_state) = self.state.transition(prev, next);
             self.remain = remain;
             self.state = next_state;
-            self.prev = next;
+            self.prev = Some(next);
             Some((split, next, next_state))
         }
     }
@@ -275,6 +275,6 @@ fn transitions(
     Iter {
         remain: cats,
         state: State::Base,
-        prev: CharProperties::None,
+        prev: None,
     }
 }

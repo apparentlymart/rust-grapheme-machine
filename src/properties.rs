@@ -9,6 +9,10 @@ mod table;
 /// character tables, but is treated by UAX#29 as mutually-exclusive with the
 /// grapheme cluster break property value and so included in this enumeration
 /// for simplicity's sake.
+///
+/// Do not depend on the specific values currently used in this enumeration;
+/// they are an implementation detail subject to change in future versions of
+/// this library.
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GCBProperty {
@@ -37,6 +41,10 @@ pub enum GCBProperty {
 ///
 /// These are used in the rule that avoids splitting orthographic syllables in
 /// inappropriate ways, [GB9c](https://www.unicode.org/reports/tr29/#GB9c).
+///
+/// Do not depend on the specific values currently used in this enumeration;
+/// they are an implementation detail subject to change in future versions of
+/// this library.
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum InCBProperty {

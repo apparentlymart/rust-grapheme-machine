@@ -56,10 +56,14 @@ impl State {
     /// Correct use requires that the `prev` of one call equals the `next`
     /// of the previous call that generated the new state. If that is not
     /// upheld then the results are unspecified.
-    pub fn transition(self, prev: CharProperties, next: CharProperties) -> (bool, State) {
+    pub fn transition(self, prev: Option<CharProperties>, next: CharProperties) -> (bool, State) {
         use GCBProperty::*;
 
         let next_state = self.next_state(next);
+        let Some(prev) = prev else {
+            // At start of input there's always a boundary.
+            return (true, next_state);
+        };
 
         // GB1 and GB2 aren't covered here because we use "Other" to represent
         // the beginning and end of the data, which will therefore always
